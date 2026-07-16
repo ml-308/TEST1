@@ -93,6 +93,11 @@ totalCount.textContent = totalQuestions;          // 在界面中显示总题数
 // 主题切换 — 亮色/暗色模式
 // ================================================================
 
+//post
+async function Postexam(){
+
+}
+
 /**
  * 获取用户偏好的主题
  * 优先读取 localStorage，其次跟随系统设置
@@ -191,74 +196,91 @@ function renderQuestion(index) {
     questionIndex.textContent = `第 ${index + 1} 题 / 共 ${totalQuestions} 题`;
     questionType.textContent = `（${q.type}）`;
 
+    // --- 显示题目内容 ---
+    questionText.innerHTML = q.question;
+
     // --- 清空并重新生成选项/答案区域 ---
     optionsContainer.innerHTML = '';
 
     if (q.type === '填空题') {
-        // ── 填空题：解析空白，为每个空白渲染一个输入框 ──
+        // ── 填空题：题目与填空输入框放在同一行 ──
         const { parts, blankCount } = parseBlanks(q.question);
-        // 显示完整题目（含空白标记）
-        questionText.innerHTML = q.question;
+        optionsContainer.innerHTML = '';  // 不使用 optionsContainer
 
         // 从已保存答案中按 /t 拆分出各空的值
         const savedValues = answers[index].value
             ? answers[index].value.split('/t')
             : [];
 
-        const inputStyle = `
-            width:100%; padding:.6rem .85rem; font-size:1rem;
-            border:.15rem solid var(--border);
-            border-radius:var(--radius-md);
-            background:var(--input-bg); color:var(--text);
-            outline:none; transition:border-color var(--transition-fast);
-            box-sizing:border-box;
-        `;
+        // 构建行内布局容器
+        const line = document.createElement('div');
+        line.style.cssText = 'display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; font-size:1.1rem; line-height:2;';
 
         if (blankCount === 0) {
-            // ── 无显式空白：整体作为一问，渲染单个输入框 ──
+            // ── 无显式空白：题目文本 + 行内输入框 ──
+            const span = document.createElement('span');
+            span.textContent = q.question;
+            line.appendChild(span);
+
             const input = document.createElement('input');
             input.type = 'text';
-            input.placeholder = '请输入答案…';
+            input.placeholder = '…';
             input.value = answers[index].value || '';
-            input.style.cssText = inputStyle;
+            input.style.cssText = `
+                display:inline-block; width:160px; padding:.3rem .6rem; font-size:1rem;
+                border:none; border-bottom:.15rem solid var(--border);
+                background:transparent; color:var(--text);
+                outline:none; transition:border-color var(--transition-fast);
+            `;
             input.addEventListener('input', () => {
                 if (examSubmitted) return;
                 answers[index].value = input.value;
                 updateProgress();
             });
-            optionsContainer.appendChild(input);
+            line.appendChild(input);
 
         } else {
-            // ── 有显式空白：每个空白渲染一个输入框，用 /t 拼接 ──
+            // ── 有显式空白：交替渲染文本段和行内输入框 ──
+            const inputs = [];
             for (let i = 0; i < blankCount; i++) {
+                // 文本段
                 if (parts[i]) {
-                    const ctx = document.createElement('div');
-                    ctx.textContent = parts[i];
-                    ctx.style.cssText = 'font-size:.9rem; color:var(--text-secondary); margin-bottom:.25rem;';
-                    optionsContainer.appendChild(ctx);
+                    const span = document.createElement('span');
+                    span.textContent = parts[i];
+                    line.appendChild(span);
                 }
-
+                // 行内输入框
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.placeholder = `空 ${i + 1}`;
+                input.placeholder = '…';
                 input.value = savedValues[i] || '';
-                input.style.cssText = inputStyle;
-                input.addEventListener('input', () => {
-                    if (examSubmitted) return;
-                    const inputs = optionsContainer.querySelectorAll('input');
-                    const values = Array.from(inputs).map(inp => inp.value);
-                    answers[index].value = values.join('/t');
-                    updateProgress();
-                });
-                optionsContainer.appendChild(input);
+                input.style.cssText = `
+                    display:inline-block; width:100px; padding:.3rem .6rem; font-size:1rem;
+                    border:none; border-bottom:.15rem solid var(--border);
+                    background:transparent; color:var(--text);
+                    text-align:center;
+                    outline:none; transition:border-color var(--transition-fast);
+                `;
+                inputs.push(input);
+                line.appendChild(input);
             }
+            // 最后一段文本
             if (parts[blankCount]) {
-                const ctx = document.createElement('div');
-                ctx.textContent = parts[blankCount];
-                ctx.style.cssText = 'font-size:.9rem; color:var(--text-secondary); margin-top:.25rem;';
-                optionsContainer.appendChild(ctx);
+                const span = document.createElement('span');
+                span.textContent = parts[blankCount];
+                line.appendChild(span);
             }
+            // 保存事件：用 /t 拼接所有输入框的值
+            const save = () => {
+                if (examSubmitted) return;
+                answers[index].value = inputs.map(inp => inp.value).join('/t');
+                updateProgress();
+            };
+            inputs.forEach(inp => inp.addEventListener('input', save));
         }
+
+        questionText.innerHTML = '';
+        questionText.appendChild(line);
 
     } else if (q.type === '多选题') {
         // ── 多选题：渲染 A/B/C/D 复选框 ──
@@ -519,6 +541,7 @@ function submitExam(isTimeout) {
 
     // 显示弹窗
     resultModal.style.display = 'flex';
+    Postexam();
 }
 
 // 交卷按钮点击事件
