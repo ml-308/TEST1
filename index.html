@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线考试系统</title>
+    <link rel="stylesheet" href="./style/index.css">
+</head>
+<body>
+
+    <!-- ================================================================ -->
+    <!-- ===== 登录页面 ===== -->
+    <!-- ================================================================ -->
+    <div id="loginScreen" style="display:flex; justify-content:center; align-items:center; min-height:100vh; padding:1.5rem;">
+        <hcw-card style="width:100%; max-width:400px;">
+            <hcw-card-title style="display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:2rem;">📝</span>
+                <span class="logo-text" style="font-size:1.75rem;">在线考试系统</span>
+            </hcw-card-title>
+            <div class="input-group" style="margin-bottom:1rem;">
+                <label for="loginName">用户名</label>
+                <input id="loginName" placeholder="请输入用户名" hcw-input>
+            </div>
+            <div class="error-msg" id="loginError" style="margin-top:.5rem; display:none;">请输入用户名</div>
+            <div style="margin-top:1.25rem;">
+                <hcw-button primary fill large style="width:100%; font-size:1.1rem;" id="loginBtn">
+                    开始考试 →
+                </hcw-button>
+            </div>
+
+            <div style="display:flex; justify-content:center; margin-top:.75rem;">
+                <hcw-button icon id="loginThemeToggle" title="切换主题" style="font-size:1.1rem;">🌓</hcw-button>
+            </div>
+        </hcw-card>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- ===== 考试界面 ===== -->
+    <!-- ================================================================ -->
+    <div id="examScreen" class="hidden">
+
+        <!-- 顶部导航栏 -->
+        <hcw-body-header>
+            <div class="logo-area">
+                <span class="logo-text">📝 在线考试</span>
+            </div>
+            <div id="headerAuthArea">
+                <hcw-button icon id="themeToggleBtn" title="切换主题" style="font-size:1.1rem;">🌓</hcw-button>
+                <span hidden-on-mobile>｜</span>
+                <span>考生：<strong id="studentNameDisplay">—</strong></span>
+                <span hidden-on-mobile>｜</span>
+                <span hidden-on-mobile>⏱ <strong id="timerDisplay">59:59</strong></span>
+            </div>
+        </hcw-body-header>
+
+        <!-- 主内容区 -->
+        <hcw-article>
+
+            <!-- 进度条 -->
+            <div style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;">
+                <span style="font-size:.9rem; color:var(--text-secondary);">
+                    已答 <strong id="answeredCount" style="color:var(--primary);">0</strong> / <strong id="totalCount">20</strong> 题
+                </span>
+                <div style="flex:1; min-width:120px; height:6px; border-radius:var(--radius-full); background:var(--border); overflow:hidden;">
+                    <div id="progressBar" style="width:0%; height:100%; border-radius:var(--radius-full); background:var(--primary); transition:width var(--transition-normal);"></div>
+                </div>
+            </div>
+
+
+
+            <!-- 题目卡片 -->
+            <hcw-card>
+                <hcw-card-title>
+                    <span id="questionIndex">第 1 题 / 共 20 题</span>
+                    <span id="questionType" style="font-size:.85rem; font-weight:normal; color:var(--text-muted);">（单选题）</span>
+                </hcw-card-title>
+
+                <div id="questionText" style="font-size:1.1rem; line-height:1.8; margin:.5rem 0 1.25rem;"></div>
+
+                <div id="optionsContainer" style="display:flex; flex-direction:column; gap:.65rem;">
+                    <!-- 由 JS 动态生成 -->
+                </div>
+            </hcw-card>
+
+            <!-- 底部操作区 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:.75rem; flex-wrap:wrap;">
+                <hcw-button id="prevBtn">← 上一题</hcw-button>
+                <div style="display:flex; gap:.75rem;">
+                    <hcw-button variant="warning" id="markBtn">☆ 标记</hcw-button>
+                    <hcw-button primary id="nextBtn">下一题 →</hcw-button>
+                </div>
+            </div>
+
+            <!-- 交卷按钮 -->
+            <div style="display:flex; justify-content:center; margin-top:.5rem;">
+                <hcw-button large fill variant="success" id="submitBtn" style="min-width:180px; font-size:1.15rem;">
+                    📤 交卷
+                </hcw-button>
+            </div>
+
+        </hcw-article>
+
+        <!-- 底部栏 -->
+        <hcw-body-footer>
+            <span style="font-size:.85rem; color:var(--text-muted);">
+                在线考试系统 · 共 20 题 · 每题 5 分
+            </span>
+            <span style="font-size:.85rem; color:var(--text-muted);">
+                &copy; 2026 mlTTC
+            </span>
+        </hcw-body-footer>
+
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- ===== 结果弹窗 ===== -->
+    <!-- ================================================================ -->
+    <div class="modal" id="resultModal">
+        <hcw-modal>
+            <hcw-modal-title>
+                <span>📊 考试结果</span>
+                <hcw-button icon id="closeResultBtn" style="flex-shrink:0;">✕</hcw-button>
+            </hcw-modal-title>
+            <hcw-modal-body>
+                <div style="text-align:center; padding:1rem 0;">
+                    <div id="finalScore" style="font-size:3rem; font-weight:800; color:var(--primary);">0</div>
+                    <div style="font-size:1rem; color:var(--text-muted); margin-top:.25rem;">总分 100 分</div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:2rem; margin:1rem 0;">
+                    <div style="text-align:center;">
+                        <div style="font-size:1.5rem; font-weight:700; color:var(--success);" id="correctCount">0</div>
+                        <div style="font-size:.8rem; color:var(--text-muted);">✅ 正确</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:1.5rem; font-weight:700; color:var(--danger);" id="wrongCount">0</div>
+                        <div style="font-size:.8rem; color:var(--text-muted);">❌ 错误</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="unansweredResultCount" style="font-size:1.5rem; font-weight:700; color:var(--text-muted);">0</div>
+                        <div style="font-size:.8rem; color:var(--text-muted);">⬜ 未答</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:.75rem; justify-content:center; margin-top:.5rem;">
+                    <hcw-button id="reviewBtn" primary>查看错题</hcw-button>
+                    <hcw-button id="restartBtn">重新考试</hcw-button>
+                </div>
+            </hcw-modal-body>
+        </hcw-modal>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!-- ===== JavaScript ===== -->
+    <!-- ================================================================ -->
+    <script src="./src/pages/main.js" type="module"></script>
+
+</body>
+</html>
