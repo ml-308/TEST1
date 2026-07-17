@@ -16,6 +16,7 @@ export async function onRequestPost(context){
     }catch(error){
         return new Response(JSON.stringify({error:'Error D1SQL'}), {
             status: 500,
+            stack: error.stack,
             headers: {'Content-Type': 'application/json'}
         });
     }
