@@ -89,12 +89,104 @@ let name;                                         // 考生姓名
 totalCount.textContent = totalQuestions;          // 在界面中显示总题数
 
 // ================================================================
-// 主题切换 — 亮色/暗色模式
+// Theme Toggle - Light / Dark mode
 // ================================================================
 
-//post
-async function Postexam(){
+// ================================================================
+// Notification Toast - shows user-facing messages
+// ================================================================
 
+/**
+ * Show a notification toast on screen.
+ * @param {string} message - Text to display
+ * @param {'success'|'error'|'info'} type - Style of the toast
+ */
+function showNotification(message, type = 'info') {
+    // Remove existing toast if any
+    const old = document.getElementById('exam-toast');
+    if (old) old.remove();
+
+    const colors = {
+        success: 'var(--success)',
+        error:   'var(--danger)',
+        info:    'var(--primary)'
+    };
+
+    const toast = document.createElement('div');
+    toast.id = 'exam-toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position:fixed; top:1rem; right:1rem; z-index:9999;
+        padding:.75rem 1.25rem; border-radius:var(--radius-md);
+        background:${colors[type] || colors.info}; color:#fff;
+        font-size:.95rem; font-weight:600;
+        box-shadow:0 4px 16px rgba(0,0,0,.2);
+        animation:toastIn .3s ease-out forwards;
+        max-width:360px; word-break:break-word;
+    `;
+
+    // Inject keyframes if not already present
+    if (!document.getElementById('exam-toast-style')) {
+        const style = document.createElement('style');
+        style.id = 'exam-toast-style';
+        style.textContent = `
+            @keyframes toastIn  { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+            @keyframes toastOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(toast);
+
+    // Auto-dismiss after 4 seconds
+    setTimeout(() => {
+        toast.style.animation = 'toastOut .3s ease-out forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// ================================================================
+// Submit answers to backend API
+// ================================================================
+
+/**
+ * POST user answers to /api/test.
+ * Shows a notification on success or failure.
+ */
+async function Postexam() {
+    try {
+        // Append student name at the end of answers array
+        const payload = [...answers, name];
+
+        const response = await fetch('/api/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers: payload })
+        });
+
+        if (!response.ok) {
+            // HTTP error (4xx, 5xx)
+            const errText = await response.text().catch(() => '');
+            showNotification(
+                `Submit failed (${response.status}): ${errText || 'Unknown error'}`,
+                'error'
+            );
+            return;
+        }
+
+        const data = await response.json().catch(() => null);
+        showNotification(
+            data?.message || 'Answers submitted successfully!',
+            'success'
+        );
+    } catch (error) {
+        // Network error (offline, server down, etc.)
+        showNotification(
+            'Network error - unable to reach server. Please check your connection.',
+            'error'
+        );
+        console.error('Submit exam error:', error);
+    }
 }
 
 /**
