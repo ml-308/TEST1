@@ -64,23 +64,22 @@ const reviewBtn            = document.getElementById('reviewBtn');             /
 const restartBtn           = document.getElementById('restartBtn');            // 重新考试
 
 // ================================================================
-// 全局状态
+// Global State
 // ================================================================
-const totalQuestions = questions.length;          // 题目总数
-let currentIndex = 0;                             // 当前正在查看的题目索引（0-based）
+const totalQuestions = questions.length;          // Total number of questions
+let currentIndex = 0;                             // Currently viewed question index (0-based)
 /**
- * 用户答案列表 — 每道题对应一个对象
- * @type {{ questionId: number, type: string, value: null|number|string|number[] }[]}
- *   单选题 value = 选项索引（0～3）或 null
- *   多选题 value = 选中索引数组（如 [0, 2]）或 []
- *   填空题 value = 输入文本或 ''
+ * User answers - flat array indexed by question order.
+ *   Single-choice: option index 0~3, or null if unanswered
+ *   Multi-choice:  comma-separated indices e.g. "0,2" or ""
+ *   Fill-in:       text, multiple blanks joined by "," e.g. "a,b" or ""
  */
-const answers = questions.map(q => ({
-    questionId: q.id,
-    type: q.type,
-    value: q.type === '填空题' ? '' : (q.type === '多选题' ? [] : null)
-}));
-const marked = new Array(totalQuestions).fill(false); // 标记状态（true=已标记）
+const answers = questions.map(q =>
+    q.type === '单选题' ? null :
+    q.type === '多选题' ? '' :
+    ''  // Fill-in
+);
+const marked = new Array(totalQuestions).fill(false); // Marked for review (true = marked)
 let examStarted = false;                          // 考试是否已开始
 let timerInterval = null;                         // 计时器句柄
 let timeRemaining = 30 * 60;                      // 剩余秒数（60 分钟）
@@ -207,9 +206,9 @@ function renderQuestion(index) {
         const { parts, blankCount } = parseBlanks(q.question);
         optionsContainer.innerHTML = '';  // 不使用 optionsContainer
 
-        // 从已保存答案中按 /t 拆分出各空的值
-        const savedValues = answers[index].value
-            ? answers[index].value.split('/t')
+        // 从已保存答案中按逗号拆分出各空的值
+        const savedValues = answers[index]
+            ? answers[index].split(',')
             : [];
 
         // 构建行内布局容器
@@ -225,7 +224,7 @@ function renderQuestion(index) {
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = '…';
-            input.value = answers[index].value || '';
+            input.value = answers[index] || '';
             input.style.cssText = `
                 display:inline-block; width:160px; padding:.3rem .6rem; font-size:1rem;
                 border:none; border-bottom:.15rem solid var(--border);
@@ -234,7 +233,7 @@ function renderQuestion(index) {
             `;
             input.addEventListener('input', () => {
                 if (examSubmitted) return;
-                answers[index].value = input.value;
+                answers[index] = input.value;
                 updateProgress();
             });
             line.appendChild(input);
@@ -270,10 +269,10 @@ function renderQuestion(index) {
                 span.textContent = parts[blankCount];
                 line.appendChild(span);
             }
-            // 保存事件：用 /t 拼接所有输入框的值
+            // 保存事件：用逗号拼接所有输入框的值
             const save = () => {
                 if (examSubmitted) return;
-                answers[index].value = inputs.map(inp => inp.value).join('/t');
+                answers[index] = inputs.map(inp => inp.value).join(',');
                 updateProgress();
             };
             inputs.forEach(inp => inp.addEventListener('input', save));
@@ -285,7 +284,7 @@ function renderQuestion(index) {
     } else if (q.type === '多选题') {
         // ── 多选题：渲染 A/B/C/D 复选框 ──
         const labels = ['A', 'B', 'C', 'D'];
-        const selected = answers[index].value;  // 已选索引数组
+        const selected = answers[index] ? answers[index].split(',').map(Number) : [];
         q.options.forEach((opt, optIndex) => {
             const label = document.createElement('label');
             label.style.cssText = `
@@ -337,7 +336,7 @@ function renderQuestion(index) {
                 border:.15rem solid transparent;
             `;
             // 已选中的选项加高亮边框
-            if (answers[index].value === optIndex) {
+            if (answers[index] === optIndex) {
                 label.style.borderColor = 'var(--primary)';
                 label.style.background = `color-mix(in srgb, var(--primary) 8%, var(--input-bg))`;
             }
@@ -347,7 +346,7 @@ function renderQuestion(index) {
             radio.name = `q${index}`;
             radio.value = optIndex;
             radio.style.cssText = 'margin-top:.2rem; accent-color:var(--primary);';
-            if (answers[index].value === optIndex) {
+            if (answers[index] === optIndex) {
                 radio.checked = true;
             }
 
@@ -386,7 +385,7 @@ function renderQuestion(index) {
  */
 function selectOption(qIndex, optIndex) {
     if (examSubmitted) return;
-    answers[qIndex].value = optIndex;
+    answers[qIndex] = optIndex;
     renderQuestion(currentIndex);
 }
 
@@ -397,13 +396,14 @@ function selectOption(qIndex, optIndex) {
  */
 function toggleMultiOption(qIndex, optIndex) {
     if (examSubmitted) return;
-    const arr = answers[qIndex].value;
+    const arr = answers[qIndex] ? answers[qIndex].split(',').map(Number) : [];
     const idx = arr.indexOf(optIndex);
     if (idx > -1) {
-        arr.splice(idx, 1);  // 已选中 → 取消
+        arr.splice(idx, 1);
     } else {
-        arr.push(optIndex);  // 未选中 → 添加
+        arr.push(optIndex);
     }
+    answers[qIndex] = arr.length > 0 ? arr.join(',') : '';
     renderQuestion(currentIndex);
 }
 
@@ -472,16 +472,12 @@ document.addEventListener('keydown', (e) => {
 
 /**
  * 计算已答题数并更新界面上的进度条和已答数字
- * 单选题：answers[i].value !== null 视为已答
- * 多选题：answers[i].value 为非空数组视为已答
- * 填空题：answers[i].value 为非空字符串视为已答
+ * 单选题：answers[i] !== null 视为已答
+ * 多选题：answers[i] !== '' 视为已答
+ * 填空题：answers[i] !== '' 视为已答
  */
 function updateProgress() {
-    const answered = answers.filter(a =>
-        a.type === '填空题' ? a.value !== '' :
-        a.type === '多选题' ? a.value.length > 0 :
-        a.value !== null
-    ).length;
+    const answered = answers.filter(a => a !== null && a !== '').length;
     answeredCount.textContent = answered;
     progressBar.style.width = `${Math.round((answered / totalQuestions) * 100)}%`;
 }
@@ -526,11 +522,7 @@ function submitExam(isTimeout) {
     clearInterval(timerInterval);                     // 停止计时器
 
     // 统计已答和未答题数
-    const answered = answers.filter(a =>
-        a.type === '填空题' ? a.value !== '' :
-        a.type === '多选题' ? a.value.length > 0 :
-        a.value !== null
-    ).length;
+    const answered = answers.filter(a => a !== null && a !== '').length;
     const unanswered = totalQuestions - answered;
 
     // 更新结果弹窗内容 — 仅显示提交情况，不判分
@@ -547,11 +539,7 @@ function submitExam(isTimeout) {
 // 交卷按钮点击事件
 submitBtn.addEventListener('click', () => {
     if (examSubmitted) return;
-    const unanswered = answers.filter(a =>
-        a.type === '填空题' ? a.value === '' :
-        a.type === '多选题' ? a.value.length === 0 :
-        a.value === null
-    ).length;
+    const unanswered = answers.filter(a => a === null || a === '').length;
     const msg = unanswered > 0
         ? `还有 ${unanswered} 题未作答，确定要交卷吗？`
         : '所有题目已作答，确定要交卷吗？';
