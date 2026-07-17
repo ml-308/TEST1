@@ -155,8 +155,9 @@ function showNotification(message, type = 'info') {
  */
 async function Postexam() {
     try {
-        // Append student name at the end of answers array
-        const payload = [...answers, name];
+        // Ensure array is length 21: 20 answers + student name, empty slots as null
+        const payload = answers.map(a => (a === '' ? null : a));
+        payload.push(name);
 
         const response = await fetch('/api/test', {
             method: 'POST',
