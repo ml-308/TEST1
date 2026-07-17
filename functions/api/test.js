@@ -12,7 +12,7 @@ export async function onRequestPost(context){
     }
 
     try{
-        const check=await env.mlttcd.perpare(`SELECT ANSWER FROM ANSWER`).all();
+        const check=await env.mlttcd.prepare(`SELECT ANSWER FROM ANSWER`).all();
     }catch(error){
         return new Response(JSON.stringify({error:'Error D1SQL',stack: error.stack,}), {
             status: 500,
@@ -87,7 +87,7 @@ export async function onRequestPost(context){
     }
 
     try{
-        const result=await env.mlttcd.perpare(
+        const result=await env.mlttcd.prepare(
             `INSERT INTO TESTER(USER,SCORE) VALUE(?,?)`
         ).bind(body[20],score).run();
     }catch(error){
