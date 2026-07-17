@@ -14,9 +14,8 @@ export async function onRequestPost(context){
     try{
         const check=await env.mlttcd.perpare(`SELECT ANSWER FROM ANSWER`).all();
     }catch(error){
-        return new Response(JSON.stringify({error:'Error D1SQL'}), {
+        return new Response(JSON.stringify({error:'Error D1SQL',stack: error.stack,}), {
             status: 500,
-            stack: error.stack,
             headers: {'Content-Type': 'application/json'}
         });
     }
