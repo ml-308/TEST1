@@ -6,28 +6,28 @@
 // ================================================================
 const questions = [
     // ---- 单选题（1～13） ----
-    { id: 1,  type: '单选题', question: '以下哪条线路使用过混动鼻祖', options: ['11', '56', '67', '138'] },//D
-    { id: 2,  type: '单选题', question: '以下哪个车型从未参与过 乐游2线 的运营', options: ['XML6105J18CN', 'XML6125JHEVA5C1', 'TEG6126BEV01', 'TEG6106BEV12'] },//B
-    { id: 3,  type: '单选题', question: '以下哪款中车型号在无锡未出现过', options: ['TEG6650BEV02', 'TEG6853BEV05', 'TEG6105BEV39', 'TEG6126BEV01'] },//C
-    { id: 4,  type: '单选题', question: '以下哪种车型未服役满 10 年', options: ['XML6105J18CN', 'HFF6101G39C', 'SWB6107Q', 'YS6105G'] },//D
-    { id: 5,  type: '单选题', question: '以下哪种车型内电显使用的不是LED', options: ['ZK6856BEVG22L1', 'LCK6850EVG3A11', 'LCK6106EVGRA3', 'ZK6856BEVG4E'] },//A
-    { id: 6,  type: '单选题', question: '无锡公交服务电话', options: ['82588088', '85210091', '88220123', '68918088'] },//A
-    { id: 7,  type: '单选题', question: '至今为止，以下哪款车型服役时间最长？', options: ['XMQ6119AGN4', 'XML6115J13CN', 'ZK6105CHEVNPG35C', 'XMQ6119G2'] },//D
-    { id: 8,  type: '单选题', question: '无锡哪款车型因年检不合格而提前报废', options: ['XML6700J18C', 'XML6125JHEV93C', 'XMQ6119AGN4', 'SLK6119USNHEV03'] },//C
-    { id: 9,  type: '单选题', question: '91276报废日期+32年是', options: ['2055', '2056', '2054', '2053'] },//B
-    { id: 10, type: '单选题', question: '以下哪条线路在地铁开通后遭到重创', options: ['70', '36', '138', '以上都是'] },//A
-    { id: 11, type: '单选题', question: '无锡曾经的12M国六CNG试验车是什么脸型', options: ['金旅切糕（MAN）', '金龙城市之光', '金旅川流', '海格罗卡'] },//C
-    { id: 12, type: '单选题', question: '无锡大市中采用潍柴电机的是', options: ['LCK6107PHEVCG21', 'LCK6126FCEVGW1', 'LCK6850EVG3A11', 'LCK6106EVGA3'] },//B
-    { id: 13, type: '单选题', question: '无锡以下哪款车型使用了肯维车桥', options: ['TEG6126BEV01', 'TEG6106EHEV17', 'ZK6856BEVG22L1', 'XML6125JHEVA5C1'] },//A
+    { id: 1,  type: '单选题', question: '以下哪条线路使用过混动鼻祖', options: ['11', '56', '67', '138'] },
+    { id: 2,  type: '单选题', question: '以下哪个车型从未参与过 乐游2线 的运营', options: ['XML6105J18CN', 'XML6125JHEVA5C1', 'TEG6126BEV01', 'TEG6106BEV12'] },
+    { id: 3,  type: '单选题', question: '以下哪款中车型号在无锡未出现过', options: ['TEG6650BEV02', 'TEG6853BEV05', 'TEG6105BEV39', 'TEG6126BEV01'] },
+    { id: 4,  type: '单选题', question: '以下哪种车型未服役满 10 年', options: ['XML6105J18CN', 'HFF6101G39C', 'SWB6107Q', 'YS6105G'] },
+    { id: 5,  type: '单选题', question: '以下哪种车型内电显使用的不是LED', options: ['ZK6856BEVG22L1', 'LCK6850EVG3A11', 'LCK6106EVGRA3', 'ZK6856BEVG4E'] },
+    { id: 6,  type: '单选题', question: '无锡公交服务电话', options: ['82588088', '85210091', '88220123', '68918088'] },
+    { id: 7,  type: '单选题', question: '至今为止，以下哪款车型服役时间最长？', options: ['XMQ6119AGN4', 'XML6115J13CN', 'ZK6105CHEVNPG35C', 'XMQ6119G2'] },
+    { id: 8,  type: '单选题', question: '无锡哪款车型因年检不合格而提前报废', options: ['XML6700J18C', 'XML6125JHEV93C', 'XMQ6119AGN4', 'SLK6119USNHEV03'] },
+    { id: 9,  type: '单选题', question: '91276报废日期+32年是', options: ['2055', '2056', '2054', '2053'] },
+    { id: 10, type: '单选题', question: '以下哪条线路在地铁开通后遭到重创', options: ['70', '36', '138', '以上都是'] },
+    { id: 11, type: '单选题', question: '无锡曾经的12M国六CNG试验车是什么脸型', options: ['金旅切糕（MAN）', '金龙城市之光', '金旅川流', '海格罗卡'] },
+    { id: 12, type: '单选题', question: '无锡大市中采用潍柴电机的是', options: ['LCK6107PHEVCG21', 'LCK6126FCEVGW1', 'LCK6850EVG3A11', 'LCK6106EVGA3'] },
+    { id: 13, type: '单选题', question: '无锡以下哪款车型使用了肯维车桥', options: ['TEG6126BEV01', 'TEG6106EHEV17', 'ZK6856BEVG22L1', 'XML6125JHEVA5C1'] },
     // ---- 多选题（14～15） ----
-    { id: 14, type: '多选题', question: '以下使用过 TEG6105URBEV80 的线路有', options: ['702', '88', '77', '802'] },//ACD
-    { id: 15, type: '多选题', question: '以下哪些线路日发班次突破过100班', options: ['16', '20', '53', '106'] },//ABC
+    { id: 14, type: '多选题', question: '以下使用过 TEG6105URBEV80 的线路有', options: ['702', '88', '77', '802'] },
+    { id: 15, type: '多选题', question: '以下哪些线路日发班次突破过100班', options: ['16', '20', '53', '106'] },
     // ---- 填空题（16～20） ----
     { id: 16, type: '填空题', question: '无锡公交哪条线路自从 2015 年就使用XML6115J28C车型至今'},//89
-    { id: 17, type: '填空题', question: '无锡公交集团在2024年开通了第一个(   )，揭开了大规模开行微巴的序幕'},//巴士邻居
-    { id: 18, type: '填空题', question: '请完整写出下列车辆编号对应的车型名称。93609   _________J____   俗名：_____'},//XML6700 18C 考斯特
-    { id: 19, type: '填空题', question: '无锡公交集团在樱花节的支援中，近三年（  ）分公司没有参加过公交一路的支援'},//凤翔
-    { id: 20, type: '填空题', question: '请写出苏B93311的车型'}//XML6125JHEV93C
+    { id: 17, type: '填空题', question: '无锡公交集团在2024年开通了第一个(   )，揭开了大规模开行微巴的序幕'},
+    { id: 18, type: '填空题', question: '请完整写出下列车辆编号对应的车型名称。93609   _________J____   俗名：_____'},
+    { id: 19, type: '填空题', question: '无锡公交集团在樱花节的支援中，近三年（  ）分公司没有参加过公交一路的支援'},
+    { id: 20, type: '填空题', question: '请写出苏B93311的车型'}
 ];
 
 // ================================================================
