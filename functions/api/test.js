@@ -50,13 +50,13 @@ export async function onRequestPost(context) {
 
     if (userAns == null || userAns === '') continue;
 
-    // 前14题（索引0-13）为单选题，精确匹配
-    if (i >= 0 && i < 14) {
+    // Q1-Q13（索引0-12）为单选题，精确匹配
+    if (i >= 0 && i < 13) {
       if (String(userAns) === String(correctAns)) {
         score += 5;
       }
     }
-    // 索引14-15为多选题（原代码i>=13&&i<=14，对应索引13,14）
+    // Q14-Q15（索引13-14）为多选题
     else if (i >= 13 && i <= 14) {
       const userStr = String(userAns);
       if (!userStr) continue;
